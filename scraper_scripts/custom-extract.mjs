@@ -54,8 +54,8 @@ async function main() {
       log(`1️⃣ Running 1-discover.mjs for ${dist}...`);
       execSync(`node scraper_scripts/1-discover.mjs --district "${dist}"`, { stdio: 'inherit' });
 
-      log(`2️⃣ Running 2-extract.mjs for ${dist}...`);
-      execSync(`node scraper_scripts/2-extract.mjs --district "${dist}"`, { stdio: 'inherit' });
+      log(`2️⃣ Running 2-extract.mjs for ${dist} (--force)...`);
+      execSync(`node scraper_scripts/2-extract.mjs --district "${dist}" --force`, { stdio: 'inherit' });
 
       log(`✅ Successfully finished extraction for ${dist}!`);
     } catch (err) {

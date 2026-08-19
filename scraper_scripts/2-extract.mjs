@@ -93,30 +93,20 @@ function recordFail(district, ac, file, reason) {
   log(`  FETCH FAIL: ${rec.district} AC${rec.acNo ?? '?'} part ${rec.partNo ?? '?'} "${rec.name}" [${rec.id || rec.url}${rec.entry ? '#' + rec.entry : ''}] — ${reason}`);
 }
 
+const force = args.includes('--force');
+
 for (const district of manifest.districts) {
   if (only && !only.some((o) => district.name.includes(o))) continue;
 
   const base = resolve(OUT_DIR, slug(district.name));
   const donePath = `${base}.done`;
-  const done = new Set(
+  const done = force ? new Set() : new Set(
     (await readFile(donePath, 'utf8').catch(() => '')).split('\n').filter(Boolean)
   );
 
   const jobs = [];
   for (const ac of district.acs) {
     for (const file of ac.files) {
-      // --- HYBRID FLOW LOGIC ---
-      const match = file.name.match(/_(\d{2})_(\d{2})_(\d{4})/);
-      if (match) {
-        const day = parseInt(match[1], 10);
-        const month = parseInt(match[2], 10);
-        const year = parseInt(match[3], 10);
-        // Skip files older than August 12, 2026
-        if (year === 2026 && month === 8 && day < 12) {
-          continue;
-        }
-      }
-      // -------------------------
       const key = fileKey(file);
       if (key && !done.has(key)) jobs.push({ ac, file, key });
     }
@@ -127,7 +117,7 @@ for (const district of manifest.districts) {
   }
 
   // Append, so a resumed run adds to what the previous one wrote.
-  const out = createWriteStream(`${base}.ndjson`, { encoding: 'utf8', flags: 'a' });
+  const out = createWriteStream(`${base}.ndjson`, { encoding: 'utf8', flags: force ? 'w' : 'a' });
   let districtRows = 0;
 
   await pool(jobs, concurrency, async ({ ac, file, key }) => {
