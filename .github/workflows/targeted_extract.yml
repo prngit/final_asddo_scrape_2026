@@ -1,56 +1,22 @@
-name: Targeted Single District Scrape (Custom Drive URL)
+name: Targeted Multi-District Scrape (Custom Drive URL)
 
 on:
   workflow_dispatch:
     inputs:
-      district:
-        description: 'Select District to Scrape'
+      districts:
+        description: 'Enter District(s) to Scrape (comma-separated or single)'
         required: true
-        type: choice
-        options:
-          - "BAGALKOT"
-          - "CHIKKABALLAPUR"
-          - "KOLAR"
-          - "KOPPAL"
-          - "B.B.M.P(CENTRAL)"
-          - "B.B.M.P(NORTH)"
-          - "B.B.M.P(SOUTH)"
-          - "BANGALORE RURAL"
-          - "BANGALORE URBAN"
-          - "BELGAUM"
-          - "BELLARY"
-          - "BIDAR"
-          - "BIJAPUR"
-          - "CHAMARAJNAGAR"
-          - "CHIKKMAGALUR"
-          - "CHITRADURGA"
-          - "DAKSHINA KANNADA"
-          - "DAVANGERE"
-          - "DHARWAD"
-          - "GADAG"
-          - "GULBARGA"
-          - "HASSAN"
-          - "HAVERI"
-          - "KODAGU"
-          - "MANDYA"
-          - "MYSORE"
-          - "RAICHUR"
-          - "RAMANAGARAM"
-          - "SHIMOGA"
-          - "TUMKUR"
-          - "UDUPI"
-          - "UTTARA KANNADA"
-          - "VIJAYANAGARA"
-          - "YADGIR"
+        type: string
+        default: 'BAGALKOT, CHIKKABALLAPUR, KOLAR, KOPPAL'
       custom_url:
-        description: 'Google Drive Folder / NIC URL (Leave blank to use default)'
+        description: 'Google Drive Folder / NIC URL (Leave blank to use default CEO link)'
         required: false
         type: string
         default: ''
 
 jobs:
-  scrape-targeted-district:
-    name: Scrape District (${{ github.event.inputs.district }})
+  scrape-targeted-districts:
+    name: Scrape Districts (${{ github.event.inputs.districts }})
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -63,18 +29,18 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Run Targeted Extraction
+      - name: Run Multi-District Extraction
         run: |
           if [ -n "${{ github.event.inputs.custom_url }}" ]; then
-            node scraper_scripts/custom-extract.mjs --district "${{ github.event.inputs.district }}" --url "${{ github.event.inputs.custom_url }}"
+            node scraper_scripts/custom-extract.mjs --district "${{ github.event.inputs.districts }}" --url "${{ github.event.inputs.custom_url }}"
           else
-            node scraper_scripts/custom-extract.mjs --district "${{ github.event.inputs.district }}"
+            node scraper_scripts/custom-extract.mjs --district "${{ github.event.inputs.districts }}"
           fi
 
-      - name: Upload Extracted District Artifact
+      - name: Upload Extracted Districts Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: extracted-district-${{ github.event.inputs.district }}
+          name: extracted-districts-data
           path: cache/extracted/
           retention-days: 7
 
@@ -83,5 +49,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add cache/
-          git commit -m "chore(data): extracted ${{ github.event.inputs.district }}" || echo "No changes to commit"
+          git commit -m "chore(data): extracted ${{ github.event.inputs.districts }}" || echo "No changes to commit"
           git push origin main || echo "Push skipped"
