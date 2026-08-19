@@ -58,7 +58,7 @@ jobs:
           node-version: '20'
 
       - name: Run Extraction
-        run: node scraper_scripts/2-extract.mjs --district "${{ matrix.district }}"
+        run: node scraper_scripts/2-extract.mjs --district "${{ matrix.district }}" --force
 
       - name: Upload Extracted Data
         uses: actions/upload-artifact@v4
