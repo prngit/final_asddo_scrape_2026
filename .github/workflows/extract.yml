@@ -1,0 +1,92 @@
+name: Karnataka ASDDO Extraction Swarm
+
+on:
+  workflow_dispatch: # Allows manual trigger from the GitHub UI
+  schedule:
+    - cron: '0 2 * * *' # Runs automatically every day at 2:00 AM UTC
+
+jobs:
+  extract-swarm:
+    name: Extract District (${{ matrix.district }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        district:
+          - "B.B.M.P(CENTRAL)"
+          - "B.B.M.P(NORTH)"
+          - "B.B.M.P(SOUTH)"
+          - "BAGALKOT"
+          - "BANGALORE RURAL"
+          - "BANGALORE URBAN"
+          - "BELGAUM"
+          - "BELLARY"
+          - "BIDAR"
+          - "BIJAPUR"
+          - "CHAMARAJNAGAR"
+          - "CHIKKABALLAPUR"
+          - "CHIKKMAGALUR"
+          - "CHITRADURGA"
+          - "DAKSHINA KANNADA"
+          - "DAVANGERE"
+          - "DHARWAD"
+          - "GADAG"
+          - "GULBARGA"
+          - "HASSAN"
+          - "HAVERI"
+          - "KODAGU"
+          - "KOLAR"
+          - "KOPPAL"
+          - "MANDYA"
+          - "MYSORE"
+          - "RAICHUR"
+          - "RAMANAGARAM"
+          - "SHIMOGA"
+          - "TUMKUR"
+          - "UDUPI"
+          - "UTTARA KANNADA"
+          - "VIJAYANAGARA"
+          - "YADGIR"
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Extraction
+        run: node scraper_scripts/2-extract.mjs --district "${{ matrix.district }}"
+
+      - name: Upload Extracted Data
+        uses: actions/upload-artifact@v4
+        with:
+          name: extracted-data-${{ strategy.job-index }}
+          path: cache/extracted/
+          retention-days: 1
+
+  aggregate:
+    name: Aggregate Artifacts
+    needs: extract-swarm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all extracted data
+        uses: actions/download-artifact@v4
+        with:
+          path: all_extracted_data
+          pattern: extracted-data-*
+          merge-multiple: true
+
+      - name: Zip everything for the user
+        run: |
+          cd all_extracted_data
+          zip -r ../Final_ASDDO_Extract.zip .
+
+      - name: Upload Final Master Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Final_ASDDO_Extract
+          path: Final_ASDDO_Extract.zip
+          retention-days: 7
