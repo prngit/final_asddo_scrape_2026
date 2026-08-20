@@ -107,6 +107,12 @@
         "folderId": "1lkd68BJJOJwlXdkwrATDO-SzhJBMs_Fi",
         "why": "User-provided current Drive folder link, 2026-08-14. Added as an extra source so the crawler can merge the updated Shimoga tree if the main source page is stale or incomplete."
       }
+    ],
+    "CHIKKABALLAPUR": [
+      {
+        "folderId": "1Uct89JAt52wbxPtp7ASXP4xqFC6WUHNK",
+        "why": "Direct Chikkaballapur Google Drive root folder containing all AC subfolders and August 18th PDFs."
+      }
     ]
   },
   "_finding": "Belgaum was investigated across three folders and none adds coverage. Its 47.7% shortfall tracks the age of its own lists, not a crawl gap: median generation date 31/07 against a CEO count current to 08/08. The same holds for Bidar (28/07, -37.2%), while every district publishing from 02/08 onward reconciles within a few percent. Those districts need to republish; there is nothing to find. Davangere was similarly stale/empty through 2026-08-13 but is now resolved — see the DAVANGERE entry above."
